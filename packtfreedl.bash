@@ -2,7 +2,12 @@
 
 # Packt daily free e-book claim & download
 
-source "packt.cfg"
+_HOME_CONF="${HOME}/.urlencoderc"
+
+###
+# Config loading
+###
+[ ! -z "${_HOME_CONF}" ] && [ -r "${_HOME_CONF}" ] && . "${_HOME_CONF}"
 
 function log {
     echo "$(date '+%Y-%m-%d %H:%M:%S ') $1" >> "$log"
