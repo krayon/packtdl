@@ -1,62 +1,488 @@
 #!/bin/bash
+# vim:set tabstop=4 textwidth=80 shiftwidth=4 expandtab cindent cino=(0,ml,\:0:
 
-# Packt daily free e-book claim & download
+# packtfreedl
+#------------
+# Downloader for Packt free e-book of the day.
 
-_HOME_CONF="${HOME}/.urlencoderc"
+# Config paths
+_ETC_CONF="/etc/packtfreedl.conf"
+_HOME_CONF="${HOME}/.packtfreedlrc"
+
+
+
+############### STOP ###############
+#
+# Do NOT edit the CONFIGURATION below. Instead generate the default
+# configuration file in your home directory thusly:
+#
+#     ./packtfreedl.bash -C >~/.packtfreedlrc
+#
+####################################
+
+# [ CONFIG_START
+
+# Packt Free DL Default Configuration
+# ===================================
+
+# DEBUG
+#   This defines debug mode which will output verbose info to stderr
+#   or, if configured, the debug file ( ERROR_LOG ).
+DEBUG=0
+
+# ERROR_LOG
+#   The file to output errors and debug statements (when DEBUG !=
+#   0) instead of stderr.
+#ERROR_LOG="/tmp/packtfreedl.log"
+
+# DOWNLOAD_DIR
+#   The directory to download the ebooks to
+DOWNLOAD_DIR="${HOME}/Downloads/"
+
+# DOWNLOAD_FORMATS
+#   An array of formats you want to download. Uses the format:
+#     DOWNLOAD_FORMATS=(format1 format2 format3)
+#   Obviously only formats that are available for download are valid. Currently
+#   Packt appears to offer pdf, mobi and epub
+DOWNLOAD_FORMATS=(
+    'epub'
+    'pdf'
+    'mobi'
+)
+
+# USER_ID
+#   Your user ID for the Packt Publishing website. This is most
+#   likely the email address you used to register on their
+#   website.
+USER_ID="your.email@example.com"
+
+# PASSWORD
+#   Your password for the Packt Publishing website.
+PASSWORD="your.password.here"
+
+# TIME_SLEEP
+#   The amount of time (in seconds) to sleep between requests
+TIME_SLEEP=1
+
+# TIMEOUT
+#   The amount of time (in seconds) to wait for a web response
+#   before timing out
+TIMEOUT=5
+
+# RETRIES
+#   The number of retries before giving up
+RETRIES=5
+
+# USER_AGENT
+#   The user agent to use for downloading
+USER_AGENT="Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:51.0) Gecko/20100101 Firefox/51.0"
+
+# ] CONFIG_END
 
 ###
 # Config loading
 ###
+[ ! -z "${_ETC_CONF}"  ] && [ -r "${_ETC_CONF}"  ] && . "${_ETC_CONF}"
 [ ! -z "${_HOME_CONF}" ] && [ -r "${_HOME_CONF}" ] && . "${_HOME_CONF}"
 
-function log {
-    echo "$(date '+%Y-%m-%d %H:%M:%S ') $1" >> "$log"
-    echo "$1"
+# Version
+APP_NAME="Packt Free DL Default Configuration"
+APP_VER="0.01"
+APP_URL="http://gitlab.com/krayon/packtfreedl/"
+
+# Program name
+PROG="$(basename "${0}")"
+
+# exit condition constants
+ERR_NONE=0
+ERR_MISSINGDEP=1
+ERR_UNKNOWNOPT=2
+ERR_INVALIDOPT=3
+ERR_MISSINGPARAM=4
+ERR_TMPFILEFAIL=5
+ERR_BADFORM=6
+ERR_LOGIN=7
+ERR_FREEBOOK=8
+
+# Defaults not in config
+
+baseurl="https://www.packtpub.com"
+offerpath="packt/offers/free-learning"
+dlpath="ebook_download"
+host="${baseurl#*/}"; host="${host#*/}"; host="${host#*/}"
+
+emailfield="email"
+passfield="password"
+
+cookie_file=""
+form_fields=""
+
+
+
+# Params:
+#   NONE
+function show_version() {
+    echo -e "\
+${APP_NAME} v${APP_VER}\n\
+${APP_URL}\n\
+"
 }
 
-function getBook {
-	mkdir -p "$dldir/$title"
-	curl -s -L --retry $rtry -A "$agent" -b "$cookie" -c "$cookie" "https://www.packtpub.com/ebook_download/$book/$1" > "$dldir/$title/$title.$1"
-	cex=$?; test "$cex" -ne "0" && { log "curl exit error code: $cex"; exit; }
-	log "$1 downloaded"
+# Params:
+#   NONE
+function show_usage() {
+    show_version
+cat <<EOF
+
+${APP_NAME} downloads the latest free book from Packt Publishing.
+
+Usage: ${PROG} -h|--help
+       ${PROG} -V|--version
+       ${PROG} -C|--configuration
+       ${PROG} [-v|--verbose]
+
+-h|--help           - Displays this help
+-V|--version        - Displays the program version
+-C|--configuration  - Outputs the default configuration that can be placed in
+                          ${_ETC_CONF}
+                      or
+                          ${_HOME_CONF}
+                      for editing.
+-v|--verbose        - Displays extra debugging information.  This is the same
+                      as setting DEBUG=1 in your config.
+Example: ${PROG}
+EOF
 }
 
-# initial clean up
-log "*** Packt started ***"
-rm -f $cookie packt*.html
+function cleanup() {
+    # Delete cookie file
+    decho "Deleting cooking file: ${cookie_file}..."
+    [ ! -z "${cookie_file}" ] && rm -f "${cookie_file}"
 
-# login
-log "Packt web login"
+    cookie_file=""
+}
 
-# web login
-curl -s --retry $rtry -m $tout -A "$agent" -b "$cookie" -c "$cookie" --data-urlencode "email=$userid" -d "password=$pwd" -d "op=Login" -d "form_build_id=form-73ba86bbfb2a50719049129632c84810 " -d "form_token=2f1d586bf7df196b77d0761709d03199" -d "form_id=packt_user_login_form" https://www.packtpub.com
-cex=$?; test "$cex" -ne "0" && { log "curl exit error code: $cex"; exit; }
+function trapint() {
+    echo "WARNING: Signal received: ${1}" >&2
 
-# daily free e-book
-curl -s --retry $rtry -m $tout -A "$agent" -b "$cookie" -c "$cookie" https://www.packtpub.com/packt/offers/free-learning > packt_daily.html
-cex=$?; test "$cex" -ne "0" && { log "curl exit error code: $cex"; exit; }
+    cleanup
 
-title=$(grep "dotd-title" -A 2 packt_daily.html | tail -1 | sed 's/^[^0-9A-Za-z]*//;s/[\t ]*<\/h2>$//' | awk '{$1=$1};1')
-log "Today's free e-book: $title"
+    exit ${1}
+}
 
-# claim
-claim=$(grep -oE "freelearning-claim/[0-9]+/[0-9]+" packt_daily.html)
-curl -s --retry $rtry -m $tout -A "$agent" -b "$cookie" -c "$cookie" -H 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8' -H 'Accept-Encoding: gzip, deflate' -H 'Accept-Language: en-US,en;q=0.5' -H 'Connection: keep-alive' -H 'Host: www.packtpub.com' -H 'Referer: https://www.packtpub.com/packt/offers/free-learning' "https://www.packtpub.com/$claim"
-cex=$?; test "$cex" -ne "0" && { log "curl exit error code: $cex"; exit; }
-log "e-Book claimed"
+# Output configuration file
+function output_config() {
+    cat "${0}"|\
+         grep -A99999 '# \[ CONFIG_START'\
+        |grep -v      '# \[ CONFIG_START'\
+        |grep -B99999 '# \] CONFIG_END'  \
+        |grep -v      '# \] CONFIG_END'  \
+    #
+}
 
-# download link
-book=$(echo $claim | sed 's/.*\/\([0-9]*\)\/.*/\1/')
+# Debug echo
+function decho() {
+    # Not debugging, get out of here then
+    [ ${DEBUG} -le 0 ] && return
 
-getBook mobi
-getBook epub
-getBook pdf
+    while read -r line; do #{
+        echo "[$(date +'%Y-%m-%d %H:%M')] DEBUG: ${line}" >&2
+    done< <(echo "${@}")
+}
 
-# Packt logout
-curl -s --retry $rtry -m $tout -A "$agent" -b "$cookie" -c "$cookie" https://www.packtpub.com/logout > packt_logout.html
-cex=$?; test "$cex" -ne "0" && { log "curl exit error code: $cex"; exit; }
-log "Packt logout"
+function get_form_fields() {
+    # Get form fields and their default values
+    formdata="$(\
+        curl\
+            -H 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'\
+            -H 'Accept-Language: en-US,en;q=0.5'\
+            -H 'Accept-Encoding: gzip, deflate'\
+            -s\
+            -L\
+            --retry "${RETRIES}"\
+            -m      "${TIMEOUT}"\
+            -A      "${USER_AGENT}"\
+            -c      "${cookie_file}"\
+            "${baseurl}"\
+        |tr -d '\r'\
+        |grep     -A99999 '<form .*packt-user-login-form'\
+        |grep -m1 -B99999 '</form'\
+        |sed 's#<#\n<#g'\
+        |sed\
+            -n\
+            -e '/<input/s/^.*name="\([^"]*\)".*value="\([^"]*\)".*$/\1=\2/gp'\
+            -e '/<input/s/^.*name="\([^"]*\)".*$/\1=/gp'\
+    )"
 
-rm -f $cookie packt*.html
+    [ $(echo "${formdata}"|egrep "${emailfield}=|${passfield}="|wc -l) -lt 2 ] && {
+        echo "ERROR: Form doesn't contain expected fields ${emailfield} and ${passfield}" >&2
 
-# end
+        decho "FORM DATA:"
+        decho "${formdata}"
+
+        return 1
+    }
+
+    echo "${formdata}"|egrep -v "${emailfield}=|${passfield}="
+    return 0
+}
+
+# <id> <format> <name>
+function dl_book() {
+    curl\
+        -H 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'\
+        -H 'Accept-Language: en-US,en;q=0.5'\
+        -H 'Accept-Encoding: gzip, deflate'\
+        -s\
+        -L\
+        --retry "${RETRIES}"\
+        -m      "${TIMEOUT}"\
+        -A      "${USER_AGENT}"\
+        -b      "${cookie_file}"\
+        -c      "${cookie_file}"\
+        "${baseurl}/${dlpath}/${1}/${2}"\
+    >"${DOWNLOAD_DIR}/${3}.${1}.${2}"
+}
+
+function login() {
+    # Log in
+    echo "Logging in..." >&2
+    pagedata="$(\
+        curl\
+            -H 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'\
+            -H 'Accept-Language: en-US,en;q=0.5'\
+            -H 'Accept-Encoding: gzip, deflate'\
+            -s\
+            -L\
+            --retry "${RETRIES}"\
+            -m      "${TIMEOUT}"\
+            -A      "${USER_AGENT}"\
+            -b      "${cookie_file}"\
+            -c      "${cookie_file}"\
+            --data-urlencode "email=${USER_ID}"\
+            --data-urlencode "password=${PASSWORD}"\
+            ${form_fields}\
+            "${baseurl}"\
+        |tr -d '\r'\
+    )" || {
+        # FIXME: Be more descriptive?
+        echo "ERROR: Curl returned: $?" >&2
+        return 1
+    }
+
+    echo "${pagedata}"\
+    |grep -m1 'edit-packt-user-login-form-form-token' &>/dev/null || {
+        echo "ERROR: Failed to login, check username and password" >&2
+        return 1
+    }
+
+    # Logged in
+
+    decho "Logged in"
+    return 0
+}
+
+# <claim_path>
+function claim_book() {
+    # Claim ebook and get d/l link
+    echo "Claiming book..." >&2
+    pagedata="$(\
+        curl\
+            -H 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'\
+            -H 'Accept-Language: en-US,en;q=0.5'\
+            -H 'Accept-Encoding: gzip, deflate'\
+            -s\
+            -L\
+            --retry "${RETRIES}"\
+            -m      "${TIMEOUT}"\
+            -A      "${USER_AGENT}"\
+            -b      "${cookie_file}"\
+            -c      "${cookie_file}"\
+            -H 'Connection: keep-alive'\
+            -H "Referer: ${baseurl}/${offerpath}"\
+            "${baseurl}/${1}"\
+        |tr -d '\r'\
+    )" || {
+        # FIXME: Be more descriptive?
+        echo "ERROR: Curl returned: $?" >&2
+        return 1
+    }
+
+    decho "Book claimed."
+    return 0
+}
+
+
+
+# START #
+
+# If debug file, redirect stderr out to it
+[ ! -z "${ERROR_LOG}" ] && exec 2>>"${ERROR_LOG}"
+
+decho "START"
+
+# Check for required commands
+
+# Process params
+moreparams=1
+decho "Processing ${#} params..."
+while [ ${#} -gt 0 ]; do #{
+    decho "Command line param: ${1}"
+
+    [ ${moreparams} -gt 0 ] && {
+        case "${1}" in #{
+            # Verbose mode # [-v|--verbose]
+            -v|--verbose)
+                decho "Verbose mode specified"
+
+                DEBUG=1
+
+                shift 1; continue
+            ;;
+
+            # Help # -h|--help
+            -h|--help)
+                decho "Help"
+
+                show_usage
+                exit ${ERR_NONE}
+            ;;
+
+            # Version # -V|--version
+            -V|--version)
+                decho "Version"
+
+                show_version
+                exit ${ERR_NONE}
+            ;;
+
+            # Configuration output # -C|--configuration
+            -C|--configuration)
+                decho "Configuration"
+
+                output_config
+                exit ${ERR_NONE}
+            ;;
+
+            *)
+                moreparams=0
+                continue
+            ;;
+
+        esac #}
+    }
+
+    [ ${#} -gt 0 ] && {
+        # Assume a parameter
+        echo "ERROR: Unrecognised parameter ${1}..." >&2
+        exit ${ERR_UNKNOWNOPT}
+    }
+
+done #}
+
+# Create cookie file
+cookie_file="$(mktemp -q "${PROG}.XXXXXX")" || {
+    echo "ERROR: Failed to create cookie file" >&2
+    exit ${ERR_TMPFILEFAIL}
+}
+decho "Created cookie file: ${cookie_file}"
+
+
+
+# SIGINT  =  2 # (CTRL-c etc)
+# SIGKILL =  9
+# SIGUSR1 = 10
+# SIGUSR2 = 12
+for sig in 2 9 10 12; do #{
+    trap "trapint ${sig}" ${sig}
+done #}
+
+
+
+# Get the form fields
+decho "Getting form fields..."
+form_fields="$(get_form_fields)" || {
+    exit ${ERR_BADFORM}
+}
+
+decho "FORM DATA:"
+decho "${form_fields}"
+
+# Format form data into curl '-d' parameters
+form_fields="$(echo "${form_fields}"|sed 's#^# -d #g'|tr -d '\n')"
+
+# On success, the page returned is similar, with a few exceptions:
+#   * The JavaScript Packt.user array will contain extra fields such as uid,
+#     name etc
+#   * The forms will have an input called "form_token" with a value of
+#     "edit-packt-user-login-form-form-token"
+#
+# Since we're not parsing script HEAD tags and so on, it's probably safer to
+# look for the form field instead of the Packt.user, despite that being "nicer"
+
+# Log in
+login || exit ${ERR_LOGIN}
+
+# Get free book page
+echo "Looking up free book..." >&2
+pagedata="$(\
+    curl\
+        -H 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'\
+        -H 'Accept-Language: en-US,en;q=0.5'\
+        -H 'Accept-Encoding: gzip, deflate'\
+        -s\
+        -L\
+        --retry "${RETRIES}"\
+        -m      "${TIMEOUT}"\
+        -A      "${USER_AGENT}"\
+        -b      "${cookie_file}"\
+        -c      "${cookie_file}"\
+        "${baseurl}/${offerpath}"\
+    |tr -d '\r'\
+)" || {
+    # FIXME: Be more descriptive?
+    echo "ERROR: Curl returned: $?" >&2
+    exit ${ERR_FREEBOOK}
+}
+
+# Get free book title
+booktitle="$(\
+    echo "${pagedata}"\
+    |grep -A5 -m1 dotd-title\
+    |sed -n 's#\t# #g;s#<[^>]*>##g;s#^ *##g;s# *$##g;/^[a-zA-Z0-9]/p'\
+)"
+[ "${booktitle}" == "" ] && {
+    echo "ERROR: Failed to get free book title, try again later" >&2
+    exit ${ERR_FREEBOOK}
+}
+
+echo "Free book: ${booktitle}..." >&2
+
+# Get free book claim link
+claimpath="$(\
+    echo "${pagedata}"\
+    |grep -m1 'href=".*claim'\
+    |sed 's#.*href="\([^"]*\)".*$#\1#'\
+)"
+[ "${claimpath}" == "" ] && {
+    echo "ERROR: Failed to get free book claim path, try again later" >&2
+    exit ${ERR_FREEBOOK}
+}
+decho "claimpath: ${claimpath}"
+
+# Claim ebook
+claim_book "${claimpath}"
+
+bookid="${claimpath%/*}"; bookid="${bookid##*/}"
+decho "bookid: ${bookid}"
+
+for fmt in "${DOWNLOAD_FORMATS[@]}"; do #{
+    echo "Download format: ${fmt}..." >&2
+    dl_book ${bookid} "${fmt}" "${booktitle}"
+done #}
+
+cleanup
+
+decho "DONE"
+
+exit $?
