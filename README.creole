@@ -30,10 +30,68 @@ Example: packtfreedl.bash
 
 To generate the default configuration for modification, run:
 {{{
-packtfreedl.bash -C >~/.packtfreedlrc
+./packtfreedl.bash -C >~/.packtfreedlrc
 }}}
 
 Now, you can edit ~/.packtfreedlrc in your favourite editor.
+
+The configuration file will look something like this:
+{{{
+# Packt Free DL Default Configuration
+# ===================================
+
+# DEBUG
+#   This defines debug mode which will output verbose info to stderr
+#   or, if configured, the debug file ( ERROR_LOG ).
+DEBUG=0
+
+# ERROR_LOG
+#   The file to output errors and debug statements (when DEBUG !=
+#   0) instead of stderr.
+#ERROR_LOG="/tmp/packtfreedl.log"
+
+# DOWNLOAD_DIR
+#   The directory to download the ebooks to
+DOWNLOAD_DIR="${HOME}/Downloads/"
+
+# DOWNLOAD_FORMATS
+#   An array of formats you want to download. Uses the format:
+#     DOWNLOAD_FORMATS=(format1 format2 format3)
+#   Obviously only formats that are available for download are valid. Currently
+#   Packt appears to offer pdf, mobi and epub
+DOWNLOAD_FORMATS=(
+    'epub'
+    'pdf'
+    'mobi'
+)
+
+# USER_ID
+#   Your user ID for the Packt Publishing website. This is most
+#   likely the email address you used to register on their
+#   website.
+USER_ID="your.email@example.com"
+
+# PASSWORD
+#   Your password for the Packt Publishing website.
+PASSWORD="your.password.here"
+
+# TIME_SLEEP
+#   The amount of time (in seconds) to sleep between requests
+TIME_SLEEP=1
+
+# TIMEOUT
+#   The amount of time (in seconds) to wait for a web response
+#   before timing out
+TIMEOUT=5
+
+# RETRIES
+#   The number of retries before giving up
+RETRIES=5
+
+# USER_AGENT
+#   The user agent to use for downloading
+USER_AGENT="Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:51.0) Gecko/20100101 Firefox/51.0"
+}}}
 
 == EXAMPLE ==
 
