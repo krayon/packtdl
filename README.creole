@@ -1,0 +1,49 @@
+Downloader for Packt free e-book of the day
+
+REWRITE OF: https://github.com/igustin/packt
+
+{{{
+Packt Free DL Default Configuration v0.01
+http://gitlab.com/krayon/packtfreedl/
+
+
+Packt Free DL Default Configuration downloads the latest free book from Packt Publishing.
+
+Usage: packtfreedl.bash -h|--help
+       packtfreedl.bash -V|--version
+       packtfreedl.bash -C|--configuration
+       packtfreedl.bash [-v|--verbose]
+
+-h|--help           - Displays this help
+-V|--version        - Displays the program version
+-C|--configuration  - Outputs the default configuration that can be placed in
+                          /etc/packtfreedl.conf
+                      or
+                          /home/krayon/.packtfreedlrc
+                      for editing.
+-v|--verbose        - Displays extra debugging information.  This is the same
+                      as setting DEBUG=1 in your config.
+Example: packtfreedl.bash
+}}}
+
+== CONFIGURATION ==
+
+To generate the default configuration for modification, run:
+{{{
+packtfreedl.bash -C >~/.packtfreedlrc
+}}}
+
+Now, you can edit ~/.packtfreedlrc in your favourite editor.
+
+== EXAMPLE ==
+
+Example of the script in use:
+{{{
+$ ./packtfreedl.bash
+Logging in...
+Looking up free book...
+Free book: Learning C# by Developing Games with Unity 5.x - Second Edition...
+Claiming book...
+Download format: epub...
+Download format: pdf...
+}}}
