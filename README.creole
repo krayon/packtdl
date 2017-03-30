@@ -105,3 +105,11 @@ Claiming book...
 Download format: epub...
 Download format: pdf...
 }}}
+
+== BUGS ==
+
+* Currently, running the script twice will again try to claim the same book,
+  and again download it/them, clobbering the existing files;
+* Ignores TIME_SLEEP
+* ENHANCEMENT: Doesn't download associated code;
+
