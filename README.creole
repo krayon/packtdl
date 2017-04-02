@@ -110,6 +110,7 @@ Download format: pdf...
 
 * Currently, running the script twice will again try to claim the same book,
   and again download it/them, clobbering the existing files;
-* Ignores TIME_SLEEP
+* Ignores TIME_SLEEP;
+* Cookie temp file is created in PWD instead of temp;
 * ENHANCEMENT: Doesn't download associated code;
 
