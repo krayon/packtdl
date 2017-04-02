@@ -54,6 +54,12 @@ DEBUG=0
 #   The directory to download the ebooks to
 DOWNLOAD_DIR="${HOME}/Downloads/"
 
+# CLAIM_EBOOKS
+#   If packtfreedl should log in and try to claim the ebooks. NOTE: If this is
+#   false (0), ebooks will not be downloaded (USER_ID, PASSWORD and
+#   DOWNLOAD_FORMATS is ignored).
+CLAIM_EBOOKS=1
+
 # DOWNLOAD_FORMATS
 #   An array of formats you want to download. Uses the format:
 #     DOWNLOAD_FORMATS=(format1 format2 format3)

@@ -60,6 +60,12 @@ DEBUG=0
 #   The directory to download the ebooks to
 DOWNLOAD_DIR="${HOME}/Downloads/"
 
+# CLAIM_EBOOKS
+#   If packtfreedl should log in and try to claim the ebooks. NOTE: If this is
+#   false (0), ebooks will not be downloaded (USER_ID, PASSWORD and
+#   DOWNLOAD_FORMATS is ignored).
+CLAIM_EBOOKS=1
+
 # DOWNLOAD_FORMATS
 #   An array of formats you want to download. Uses the format:
 #     DOWNLOAD_FORMATS=(format1 format2 format3)
@@ -420,33 +426,35 @@ done #}
 
 
 
-# Get the form fields
-decho "Getting form fields..."
-form_fields="$(get_form_fields)" || {
-    exit ${ERR_BADFORM}
+[ "${CLAIM_EBOOKS}" -eq 1 ] && {
+    # Get the form fields
+    decho "Getting form fields..."
+    form_fields="$(get_form_fields)" || {
+        exit ${ERR_BADFORM}
+    }
+
+    decho "FORM DATA:"
+    decho "${form_fields}"
+
+    # Format form data into curl '-d' parameters
+    form_fields="$(echo "${form_fields}"|sed 's#^# -d #g'|tr -d '\n')"
+
+    sleep "${TIME_SLEEP}"
+
+    # On success, the page returned is similar, with a few exceptions:
+    #   * The JavaScript Packt.user array will contain extra fields such as uid,
+    #     name etc
+    #   * The forms will have an input called "form_token" with a value of
+    #     "edit-packt-user-login-form-form-token"
+    #
+    # Since we're not parsing script HEAD tags and so on, it's probably safer to
+    # look for the form field instead of the Packt.user, despite that being "nicer"
+
+    # Log in
+    login || exit ${ERR_LOGIN}
+
+    sleep "${TIME_SLEEP}"
 }
-
-decho "FORM DATA:"
-decho "${form_fields}"
-
-# Format form data into curl '-d' parameters
-form_fields="$(echo "${form_fields}"|sed 's#^# -d #g'|tr -d '\n')"
-
-sleep "${TIME_SLEEP}"
-
-# On success, the page returned is similar, with a few exceptions:
-#   * The JavaScript Packt.user array will contain extra fields such as uid,
-#     name etc
-#   * The forms will have an input called "form_token" with a value of
-#     "edit-packt-user-login-form-form-token"
-#
-# Since we're not parsing script HEAD tags and so on, it's probably safer to
-# look for the form field instead of the Packt.user, despite that being "nicer"
-
-# Log in
-login || exit ${ERR_LOGIN}
-
-sleep "${TIME_SLEEP}"
 
 # Get free book page
 echo "Looking up free book..." >&2
@@ -485,28 +493,30 @@ sleep "${TIME_SLEEP}"
 
 echo "Free book: ${booktitle}..." >&2
 
-# Get free book claim link
-claimpath="$(\
-    echo "${pagedata}"\
-    |grep -m1 'href=".*claim'\
-    |sed 's#.*href="\([^"]*\)".*$#\1#'\
-)"
-[ "${claimpath}" == "" ] && {
-    echo "ERROR: Failed to get free book claim path, try again later" >&2
-    exit ${ERR_FREEBOOK}
+[ "${CLAIM_EBOOKS}" -eq 1 ] && {
+    # Get free book claim link
+    claimpath="$(\
+        echo "${pagedata}"\
+        |grep -m1 'href=".*claim'\
+        |sed 's#.*href="\([^"]*\)".*$#\1#'\
+    )"
+    [ "${claimpath}" == "" ] && {
+        echo "ERROR: Failed to get free book claim path, try again later" >&2
+        exit ${ERR_FREEBOOK}
+    }
+    decho "claimpath: ${claimpath}"
+
+    # Claim ebook
+    claim_book "${claimpath}"
+
+    bookid="${claimpath%/*}"; bookid="${bookid##*/}"
+    decho "bookid: ${bookid}"
+
+    for fmt in "${DOWNLOAD_FORMATS[@]}"; do #{
+        echo "Download format: ${fmt}..." >&2
+        dl_book ${bookid} "${fmt}" "${booktitle}"
+    done #}
 }
-decho "claimpath: ${claimpath}"
-
-# Claim ebook
-claim_book "${claimpath}"
-
-bookid="${claimpath%/*}"; bookid="${bookid##*/}"
-decho "bookid: ${bookid}"
-
-for fmt in "${DOWNLOAD_FORMATS[@]}"; do #{
-    echo "Download format: ${fmt}..." >&2
-    dl_book ${bookid} "${fmt}" "${booktitle}"
-done #}
 
 cleanup
 
