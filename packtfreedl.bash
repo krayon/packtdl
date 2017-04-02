@@ -432,6 +432,8 @@ decho "${form_fields}"
 # Format form data into curl '-d' parameters
 form_fields="$(echo "${form_fields}"|sed 's#^# -d #g'|tr -d '\n')"
 
+sleep "${TIME_SLEEP}"
+
 # On success, the page returned is similar, with a few exceptions:
 #   * The JavaScript Packt.user array will contain extra fields such as uid,
 #     name etc
@@ -443,6 +445,8 @@ form_fields="$(echo "${form_fields}"|sed 's#^# -d #g'|tr -d '\n')"
 
 # Log in
 login || exit ${ERR_LOGIN}
+
+sleep "${TIME_SLEEP}"
 
 # Get free book page
 echo "Looking up free book..." >&2
@@ -476,6 +480,8 @@ booktitle="$(\
     echo "ERROR: Failed to get free book title, try again later" >&2
     exit ${ERR_FREEBOOK}
 }
+
+sleep "${TIME_SLEEP}"
 
 echo "Free book: ${booktitle}..." >&2
 
