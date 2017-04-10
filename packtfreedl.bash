@@ -134,6 +134,7 @@ ERR_FREEBOOK=8
 # Defaults not in config
 
 baseurl="https://www.packtpub.com"
+mybookspath="account/my-ebooks"
 offerpath="packt/offers/free-learning"
 dlpath="ebook_download"
 host="${baseurl#*/}"; host="${host#*/}"; host="${host#*/}"
@@ -254,8 +255,37 @@ function get_form_fields() {
     return 0
 }
 
-# <id> <format> <name>
-function dl_book() {
+# Retrieve the "my books" page of your account
+function get_mybooks_page() {
+    pagedata="$(\
+        curl\
+            -H 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'\
+            -H 'Accept-Language: en-US,en;q=0.5'\
+            -H 'Accept-Encoding: gzip, deflate'\
+            -s\
+            -L\
+            --retry "${RETRIES}"\
+            -m      "${TIMEOUT}"\
+            -A      "${USER_AGENT}"\
+            -b      "${cookie_file}"\
+            -c      "${cookie_file}"\
+            -H 'Connection: keep-alive'\
+            "${baseurl}/${mybookspath}"\
+        |tr -d '\r'\
+    )" || {
+        # FIXME: Be more descriptive?
+        echo "ERROR: Curl returned: $?" >&2
+        return 1
+    }
+
+    echo "${pagedata}"
+}
+
+# <url> <outfile>
+function download_file() {
+    url="${1}"
+    out="${2}"
+
     curl\
         -H 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'\
         -H 'Accept-Language: en-US,en;q=0.5'\
@@ -267,8 +297,17 @@ function dl_book() {
         -A      "${USER_AGENT}"\
         -b      "${cookie_file}"\
         -c      "${cookie_file}"\
-        "${baseurl}/${dlpath}/${1}/${2}"\
-    >"${DOWNLOAD_DIR}/${3}.${1}.${2}"
+        "${url}"\
+    >"${out}"
+}
+
+# <id> <format> <name>
+function dl_book() {
+    url="${baseurl}/${dlpath}/${1}/${2}"
+    out="${DOWNLOAD_DIR}/${3}.${1}.${2}"
+
+    download_file "${url}" "${out}"
+    return $?
 }
 
 function login() {
