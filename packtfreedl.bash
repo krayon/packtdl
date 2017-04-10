@@ -408,7 +408,7 @@ while [ ${#} -gt 0 ]; do #{
 done #}
 
 # Create cookie file
-cookie_file="$(mktemp -q "${PROG}.XXXXXX")" || {
+cookie_file="$(mktemp --tmpdir -q "${PROG}.XXXXXX")" || {
     echo "ERROR: Failed to create cookie file" >&2
     exit ${ERR_TMPFILEFAIL}
 }
