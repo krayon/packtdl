@@ -86,9 +86,8 @@ PASSWORD="your.password.here"
 TIME_SLEEP=1
 
 # TIMEOUT
-#   The amount of time (in seconds) to wait for a web response
-#   before timing out
-TIMEOUT=5
+#   The amount of time (in seconds) to wait for an entire web transaction
+TIMEOUT=30
 
 # RETRIES
 #   The number of retries before giving up
