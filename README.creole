@@ -129,6 +129,8 @@ Download format: code...
 
 == BUGS ==
 
-* ?
+* HIGH: Due to a curl bug ( https://github.com/curl/curl/issues/1163 ),
+  downloaded files that are complete already, will have (effectively) garbage
+  appended if packtfreedl is run again.
 
 <<< vim:set ts=4 sw=4 et tw=80 ai si syn=creole: >>>
