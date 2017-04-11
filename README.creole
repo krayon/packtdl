@@ -3,7 +3,7 @@ Downloader for Packt free e-book of the day
 REWRITE OF: https://github.com/igustin/packt
 
 {{{
-Packt Free DL Default Configuration v0.01
+Packt Free DL Default Configuration v0.02
 http://gitlab.com/krayon/packtfreedl/
 
 
@@ -30,6 +30,7 @@ Example: packtfreedl.bash
 
 * Claims and (optionally) downloads free book of the day from Packt Publishing.
 * **[NEW]** Will resume downloads of files if run again.
+* **[NEW]** Can download the associated code as well as the book title.
 * Seperate timeout variable for downloads (DLTIMEOUT).
 
 == CONFIGURATION ==
@@ -70,7 +71,8 @@ CLAIM_EBOOKS=1
 #   An array of formats you want to download. Uses the format:
 #     DOWNLOAD_FORMATS=(format1 format2 format3)
 #   Obviously only formats that are available for download are valid. Currently
-#   Packt appears to offer pdf, mobi and epub
+#   Packt appears to offer pdf, mobi and epub. You can also specify the special
+#   format 'code' if you want to download the associated code for the book.
 DOWNLOAD_FORMATS=(
     'epub'
     'pdf'
@@ -122,10 +124,11 @@ Free book: Learning C# by Developing Games with Unity 5.x - Second Edition...
 Claiming book...
 Download format: epub...
 Download format: pdf...
+Download format: code...
 }}}
 
 == BUGS ==
 
-* ENHANCEMENT: Doesn't download associated code;
+* ?
 
 <<< vim:set ts=4 sw=4 et tw=80 ai si syn=creole: >>>

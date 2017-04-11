@@ -70,11 +70,13 @@ CLAIM_EBOOKS=1
 #   An array of formats you want to download. Uses the format:
 #     DOWNLOAD_FORMATS=(format1 format2 format3)
 #   Obviously only formats that are available for download are valid. Currently
-#   Packt appears to offer pdf, mobi and epub
+#   Packt appears to offer pdf, mobi and epub. You can also specify the special
+#   format 'code' if you want to download the associated code for the book.
 DOWNLOAD_FORMATS=(
     'epub'
     'pdf'
     'mobi'
+    'code'
 )
 
 # USER_ID
@@ -120,7 +122,7 @@ USER_AGENT="Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:51.0) Gecko/20100101 Fire
 
 # Version
 APP_NAME="Packt Free DL Default Configuration"
-APP_VER="0.01"
+APP_VER="0.02"
 APP_URL="http://gitlab.com/krayon/packtfreedl/"
 
 # Program name
@@ -143,6 +145,7 @@ baseurl="https://www.packtpub.com"
 mybookspath="account/my-ebooks"
 offerpath="packt/offers/free-learning"
 dlpath="ebook_download"
+dlpathc="code_download"
 host="${baseurl#*/}"; host="${host#*/}"; host="${host#*/}"
 
 emailfield="email"
@@ -310,8 +313,32 @@ function download_file() {
     return $?
 }
 
+# <id> <name>
+function dl_code() {
+    # FIXME: Currently always assuming ZIP
+    out="${DOWNLOAD_DIR}/${2}.${1}.CODE.zip"
+
+    # Get the mybooks page...
+    # then filter out JUST the book we're interested in...
+    # then get the code download link
+    url="${baseurl}/$(get_mybooks_page\
+    |grep -A999999     '<div class="product-line.*nid="'"${1}"'"'\
+    |grep -B999999 -m2 '<div class="product-line'\
+    |sed -n 's#.*href="\('"/${dlpathc}/"'[^"]*\)".*#\1#p'\
+    )"
+
+    download_file "${url}" "${out}"
+    return $?
+}
+
 # <id> <format> <name>
 function dl_book() {
+    # Special case for code
+    [ "${2}" == "code" ] && {
+        dl_code "${1}" "${3}"
+        return $?
+    }
+
     url="${baseurl}/${dlpath}/${1}/${2}"
     out="${DOWNLOAD_DIR}/${3}.${1}.${2}"
 
