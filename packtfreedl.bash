@@ -303,6 +303,7 @@ function download_file() {
         --user-agent     "${USER_AGENT}"\
         --cookie         "${cookie_file}"\
         --cookie-jar     "${cookie_file}"\
+        --continue-at    -\
         --output         "${out}"\
         "${url}"
 

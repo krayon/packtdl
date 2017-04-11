@@ -29,7 +29,8 @@ Example: packtfreedl.bash
 == FEATURES ==
 
 * Claims and (optionally) downloads free book of the day from Packt Publishing.
-* **[NEW]** Seperate timeout variable for downloads (DLTIMEOUT).
+* **[NEW]** Will resume downloads of files if run again.
+* Seperate timeout variable for downloads (DLTIMEOUT).
 
 == CONFIGURATION ==
 
@@ -125,8 +126,6 @@ Download format: pdf...
 
 == BUGS ==
 
-* Currently, running the script twice will again try to claim the same book,
-  and again download it/them, clobbering the existing files;
 * ENHANCEMENT: Doesn't download associated code;
 
 <<< vim:set ts=4 sw=4 et tw=80 ai si syn=creole: >>>
