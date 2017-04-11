@@ -305,6 +305,8 @@ function download_file() {
         -c      "${cookie_file}"\
         -o      "${out}"\
         "${url}"
+
+    return $?
 }
 
 # <id> <format> <name>
@@ -559,7 +561,9 @@ echo "Free book: ${booktitle}..." >&2
 
     for fmt in "${DOWNLOAD_FORMATS[@]}"; do #{
         echo "Download format: ${fmt}..." >&2
-        dl_book ${bookid} "${fmt}" "${booktitle}"
+        dl_book ${bookid} "${fmt}" "${booktitle}" || {
+            echo "WARNING: Downloading of format ${fmt} (partially?) failed" >&2
+        }
     done #}
 }
 
