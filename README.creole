@@ -3,7 +3,7 @@ Downloader for Packt free e-book of the day
 REWRITE OF: https://github.com/igustin/packt
 
 {{{
-Packt Free DL Default Configuration v0.02
+Packt Free DL Default Configuration v0.03
 http://gitlab.com/krayon/packtfreedl/
 
 
@@ -32,6 +32,9 @@ Example: packtfreedl.bash
 * **[NEW]** Will resume downloads of files if run again.
 * **[NEW]** Can download the associated code as well as the book title.
 * Seperate timeout variable for downloads (DLTIMEOUT).
+* **[NEW]** ANTI-FEATURE: Inability to tell if a download failed to continue or
+  is just completed already due to curl bug 1163
+  ( https://github.com/curl/curl/issues/1163 )
 
 == CONFIGURATION ==
 
@@ -129,8 +132,8 @@ Download format: code...
 
 == BUGS ==
 
-* HIGH: Due to a curl bug ( https://github.com/curl/curl/issues/1163 ),
-  downloaded files that are complete already, will have (effectively) garbage
-  appended if packtfreedl is run again.
+* Due to a curl bug ( https://github.com/curl/curl/issues/1163 ), packtfreedl is
+  currently unable to tell the difference between an error downloading, or a
+  completed file, trying to download again.
 
-<<< vim:set ts=4 sw=4 et tw=80 ai si syn=creole: >>>
+<<< vim:set ts=4 sw=4 tw=80 et ai si syn=creole: >>>

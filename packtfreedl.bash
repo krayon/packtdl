@@ -1,5 +1,5 @@
 #!/bin/bash
-# vim:set tabstop=4 textwidth=80 shiftwidth=4 expandtab cindent cino=(0,ml,\:0:
+# vim:set ts=4 sw=4 tw=80 et cindent ai si cino=(0,ml,\:0:
 # ( settings from: http://datapax.com.au/code_conventions/ )
 #
 #/**********************************************************************
@@ -122,7 +122,7 @@ USER_AGENT="Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:51.0) Gecko/20100101 Fire
 
 # Version
 APP_NAME="Packt Free DL Default Configuration"
-APP_VER="0.02"
+APP_VER="0.03"
 APP_URL="http://gitlab.com/krayon/packtfreedl/"
 
 # Program name
@@ -295,6 +295,10 @@ function download_file() {
     url="${1}"
     out="${2}"
 
+    # FIXME: Due to curl bug 1163 ( https://github.com/curl/curl/issues/1163 ),
+    # we currently have to use '--fail' as a workaround. This means we cannot
+    # (easily) tell the difference between a file that is already completely
+    # downloaded, or some other error.
     curl\
         --header         'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'\
         --header         'Accept-Language: en-US,en;q=0.5'\
@@ -308,6 +312,7 @@ function download_file() {
         --cookie-jar     "${cookie_file}"\
         --continue-at    -\
         --output         "${out}"\
+        --fail\
         "${url}"
 
     return $?
@@ -591,6 +596,8 @@ echo "Free book: ${booktitle}..." >&2
         echo "Download format: ${fmt}..." >&2
         dl_book ${bookid} "${fmt}" "${booktitle}" || {
             echo "WARNING: Downloading of format ${fmt} (partially?) failed" >&2
+            echo "NOTE: This could just mean the file is completely"\
+                 "downloaded already (due to curl bug)" >&2
         }
     done #}
 }
