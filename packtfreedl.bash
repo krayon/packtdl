@@ -95,6 +95,13 @@ TIME_SLEEP=1
 #   The amount of time (in seconds) to wait for an entire web transaction
 TIMEOUT=30
 
+# DLTIMEOUT
+#   The amount of time (in seconds) to wait for downloading of files. Keep in
+#   mind that if you're downloading code, this may need to be set considerably
+#   large. If a timeout does occur, packtfreedl will try to resume the download
+#   when run again.
+DLTIMEOUT=600
+
 # RETRIES
 #   The number of retries before giving up
 RETRIES=5
@@ -292,12 +299,12 @@ function download_file() {
         -s\
         -L\
         --retry "${RETRIES}"\
-        -m      "${TIMEOUT}"\
+        -m      "${DLTIMEOUT}"\
         -A      "${USER_AGENT}"\
         -b      "${cookie_file}"\
         -c      "${cookie_file}"\
-        "${url}"\
-    >"${out}"
+        -o      "${out}"\
+        "${url}"
 }
 
 # <id> <format> <name>
