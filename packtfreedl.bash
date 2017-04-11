@@ -228,15 +228,15 @@ function get_form_fields() {
     # Get form fields and their default values
     formdata="$(\
         curl\
-            -H 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'\
-            -H 'Accept-Language: en-US,en;q=0.5'\
-            -H 'Accept-Encoding: gzip, deflate'\
-            -s\
-            -L\
-            --retry "${RETRIES}"\
-            -m      "${TIMEOUT}"\
-            -A      "${USER_AGENT}"\
-            -c      "${cookie_file}"\
+            --header         'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'\
+            --header         'Accept-Language: en-US,en;q=0.5'\
+            --header         'Accept-Encoding: gzip, deflate'\
+            --silent\
+            --location\
+            --retry          "${RETRIES}"\
+            --max-time       "${TIMEOUT}"\
+            --user-agent     "${USER_AGENT}"\
+            --cookie-jar     "${cookie_file}"\
             "${baseurl}"\
         |tr -d '\r'\
         |grep     -A99999 '<form .*packt-user-login-form'\
@@ -265,17 +265,17 @@ function get_form_fields() {
 function get_mybooks_page() {
     pagedata="$(\
         curl\
-            -H 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'\
-            -H 'Accept-Language: en-US,en;q=0.5'\
-            -H 'Accept-Encoding: gzip, deflate'\
-            -s\
-            -L\
-            --retry "${RETRIES}"\
-            -m      "${TIMEOUT}"\
-            -A      "${USER_AGENT}"\
-            -b      "${cookie_file}"\
-            -c      "${cookie_file}"\
-            -H 'Connection: keep-alive'\
+            --header         'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'\
+            --header         'Accept-Language: en-US,en;q=0.5'\
+            --header         'Accept-Encoding: gzip, deflate'\
+            --silent\
+            --location\
+            --retry          "${RETRIES}"\
+            --max-time       "${TIMEOUT}"\
+            --user-agent     "${USER_AGENT}"\
+            --cookie         "${cookie_file}"\
+            --cookie-jar     "${cookie_file}"\
+            --header         'Connection: keep-alive'\
             "${baseurl}/${mybookspath}"\
         |tr -d '\r'\
     )" || {
@@ -293,17 +293,17 @@ function download_file() {
     out="${2}"
 
     curl\
-        -H 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'\
-        -H 'Accept-Language: en-US,en;q=0.5'\
-        -H 'Accept-Encoding: gzip, deflate'\
-        -s\
-        -L\
-        --retry "${RETRIES}"\
-        -m      "${DLTIMEOUT}"\
-        -A      "${USER_AGENT}"\
-        -b      "${cookie_file}"\
-        -c      "${cookie_file}"\
-        -o      "${out}"\
+        --header         'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'\
+        --header         'Accept-Language: en-US,en;q=0.5'\
+        --header         'Accept-Encoding: gzip, deflate'\
+        --silent\
+        --location\
+        --retry          "${RETRIES}"\
+        --max-time       "${DLTIMEOUT}"\
+        --user-agent     "${USER_AGENT}"\
+        --cookie         "${cookie_file}"\
+        --cookie-jar     "${cookie_file}"\
+        --output         "${out}"\
         "${url}"
 
     return $?
@@ -323,16 +323,16 @@ function login() {
     echo "Logging in..." >&2
     pagedata="$(\
         curl\
-            -H 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'\
-            -H 'Accept-Language: en-US,en;q=0.5'\
-            -H 'Accept-Encoding: gzip, deflate'\
-            -s\
-            -L\
-            --retry "${RETRIES}"\
-            -m      "${TIMEOUT}"\
-            -A      "${USER_AGENT}"\
-            -b      "${cookie_file}"\
-            -c      "${cookie_file}"\
+            --header         'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'\
+            --header         'Accept-Language: en-US,en;q=0.5'\
+            --header         'Accept-Encoding: gzip, deflate'\
+            --silent\
+            --location\
+            --retry          "${RETRIES}"\
+            --max-time       "${TIMEOUT}"\
+            --user-agent     "${USER_AGENT}"\
+            --cookie         "${cookie_file}"\
+            --cookie-jar     "${cookie_file}"\
             --data-urlencode "email=${USER_ID}"\
             --data-urlencode "password=${PASSWORD}"\
             ${form_fields}\
@@ -362,18 +362,18 @@ function claim_book() {
     echo "Claiming book..." >&2
     pagedata="$(\
         curl\
-            -H 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'\
-            -H 'Accept-Language: en-US,en;q=0.5'\
-            -H 'Accept-Encoding: gzip, deflate'\
-            -s\
-            -L\
-            --retry "${RETRIES}"\
-            -m      "${TIMEOUT}"\
-            -A      "${USER_AGENT}"\
-            -b      "${cookie_file}"\
-            -c      "${cookie_file}"\
-            -H 'Connection: keep-alive'\
-            -H "Referer: ${baseurl}/${offerpath}"\
+            --header         'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'\
+            --header         'Accept-Language: en-US,en;q=0.5'\
+            --header         'Accept-Encoding: gzip, deflate'\
+            --silent\
+            --location\
+            --retry          "${RETRIES}"\
+            --max-time       "${TIMEOUT}"\
+            --user-agent     "${USER_AGENT}"\
+            --cookie         "${cookie_file}"\
+            --cookie-jar     "${cookie_file}"\
+            --header         'Connection: keep-alive'\
+            --header         "Referer: ${baseurl}/${offerpath}"\
             "${baseurl}/${1}"\
         |tr -d '\r'\
     )" || {
@@ -507,16 +507,16 @@ done #}
 echo "Looking up free book..." >&2
 pagedata="$(\
     curl\
-        -H 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'\
-        -H 'Accept-Language: en-US,en;q=0.5'\
-        -H 'Accept-Encoding: gzip, deflate'\
-        -s\
-        -L\
-        --retry "${RETRIES}"\
-        -m      "${TIMEOUT}"\
-        -A      "${USER_AGENT}"\
-        -b      "${cookie_file}"\
-        -c      "${cookie_file}"\
+        --header         'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'\
+        --header         'Accept-Language: en-US,en;q=0.5'\
+        --header         'Accept-Encoding: gzip, deflate'\
+        --silent\
+        --location\
+        --retry          "${RETRIES}"\
+        --max-time       "${TIMEOUT}"\
+        --user-agent     "${USER_AGENT}"\
+        --cookie         "${cookie_file}"\
+        --cookie-jar     "${cookie_file}"\
         "${baseurl}/${offerpath}"\
     |tr -d '\r'\
 )" || {
