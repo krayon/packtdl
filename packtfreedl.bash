@@ -121,7 +121,7 @@ USER_AGENT="Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:51.0) Gecko/20100101 Fire
 [ ! -z "${_HOME_CONF}" ] && [ -r "${_HOME_CONF}" ] && . "${_HOME_CONF}"
 
 # Version
-APP_NAME="Packt Free DL Default Configuration"
+APP_NAME="Packt Free DL"
 APP_VER="0.03"
 APP_URL="http://gitlab.com/krayon/packtfreedl/"
 
