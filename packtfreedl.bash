@@ -455,6 +455,18 @@ function claim_book() {
 # If debug file, redirect stderr out to it
 [ ! -z "${ERROR_LOG}" ] && exec 2>>"${ERROR_LOG}"
 
+
+
+# SIGINT  =  2 # (CTRL-c etc)
+# SIGKILL =  9
+# SIGUSR1 = 10
+# SIGUSR2 = 12
+for sig in 2 9 10 12; do #{
+    trap "trapint ${sig}" ${sig}
+done #}
+
+
+
 decho "START"
 
 # Check for required commands
@@ -525,24 +537,14 @@ while [ ${#} -gt 0 ]; do #{
 
 done #}
 
+
+
 # Create cookie file
 cookie_file="$(mktemp --tmpdir -q "${PROG}.XXXXXX")" || {
     echo "ERROR: Failed to create cookie file" >&2
     exit ${ERR_FILESYSWRITE}
 }
 decho "Created cookie file: ${cookie_file}"
-
-
-
-# SIGINT  =  2 # (CTRL-c etc)
-# SIGKILL =  9
-# SIGUSR1 = 10
-# SIGUSR2 = 12
-for sig in 2 9 10 12; do #{
-    trap "trapint ${sig}" ${sig}
-done #}
-
-
 
 [ "${CLAIM_EBOOKS}" -eq 1 ] && {
     # Get the form fields
