@@ -39,12 +39,13 @@ Example: packtfreedl.bash
 == FEATURES ==
 
 * Claims and (optionally) downloads free book of the day from Packt Publishing.
-* **[NEW]** Will resume downloads of files if run again.
-* **[NEW]** Can download the associated code as well as the book title.
+* Will resume downloads of files if run again.
+* Can download the associated code as well as the book title.
 * Seperate timeout variable for downloads (DLTIMEOUT).
-* **[NEW]** ANTI-FEATURE: Inability to tell if a download failed to continue or
+* ANTI-FEATURE: Inability to tell if a download failed to continue or
   is just completed already due to curl bug 1163
-  ( https://github.com/curl/curl/issues/1163 )
+  ( https://github.com/curl/curl/issues/1163 ).
+* **[NEW]** Downloads book files to seperate directory (thanks CPrompt),
 
 == CONFIGURATION ==
 

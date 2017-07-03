@@ -134,7 +134,7 @@ ERR_MISSINGDEP=1
 ERR_UNKNOWNOPT=2
 ERR_INVALIDOPT=3
 ERR_MISSINGPARAM=4
-ERR_TMPFILEFAIL=5
+ERR_FILESYSWRITE=5
 ERR_BADFORM=6
 ERR_LOGIN=7
 ERR_FREEBOOK=8
@@ -320,13 +320,17 @@ function download_file() {
 
 # <id> <name>
 function dl_code() {
-    # download code files into directory named after the book title
-    # we are creating this directory in the dl_book function
-    # since it fires first!
-    CODE_DIR="${DOWNLOAD_DIR}/${2}"
+    # Here we create the directory to store the book
+    # and code samples if it doesn't exist already.
+    # This directory takes the name of the book title
+    BOOK_DIR="$DOWNLOAD_DIR}/${2}"
+    [ ! -d "${BOOK_DIR}" ] && mkdir -p "${BOOK_DIR}" || {
+        echo "ERROR: Failed to create book directory: ${BOOK_DIR}" >&2
+        exit ${ERR_FILESYSWRITE}
+    }
+
     # FIXME: Currently always assuming ZIP
-    #out="${DOWNLOAD_DIR}/${2}.${1}.CODE.zip"
-    out="${CODE_DIR}/${2}.${1}.CODE.zip"
+    out="${BOOK_DIR}/${2}.${1}.CODE.zip"
     
     # Get the mybooks page...
     # then filter out JUST the book we're interested in...
@@ -348,14 +352,17 @@ function dl_book() {
         dl_code "${1}" "${3}"
         return $?
     }
+
     # Here we create the directory to store the book
-    # and code samples.
+    # and code samples if it doesn't exist already.
     # This directory takes the name of the book title
-    mkdir -p "${DOWNLOAD_DIR}/${3}"
     BOOK_DIR="$DOWNLOAD_DIR}/${3}"
+    [ ! -d "${BOOK_DIR}" ] && mkdir -p "${BOOK_DIR}" || {
+        echo "ERROR: Failed to create book directory: ${BOOK_DIR}" >&2
+        exit ${ERR_FILESYSWRITE}
+    }
 
     url="${baseurl}/${dlpath}/${1}/${2}"
-    #out="${DOWNLOAD_DIR}/${3}.${1}.${2}"
     out="${BOOK_DIR}/${3}.${1}.${2}"
 
     download_file "${url}" "${out}"
@@ -501,7 +508,7 @@ done #}
 # Create cookie file
 cookie_file="$(mktemp --tmpdir -q "${PROG}.XXXXXX")" || {
     echo "ERROR: Failed to create cookie file" >&2
-    exit ${ERR_TMPFILEFAIL}
+    exit ${ERR_FILESYSWRITE}
 }
 decho "Created cookie file: ${cookie_file}"
 
