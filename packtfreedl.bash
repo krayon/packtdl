@@ -323,7 +323,7 @@ function dl_code() {
     # Here we create the directory to store the book
     # and code samples if it doesn't exist already.
     # This directory takes the name of the book title
-    BOOK_DIR="$DOWNLOAD_DIR}/${2}"
+    BOOK_DIR="${DOWNLOAD_DIR}/${2}"
     [ ! -d "${BOOK_DIR}" ] && mkdir -p "${BOOK_DIR}" || {
         echo "ERROR: Failed to create book directory: ${BOOK_DIR}" >&2
         exit ${ERR_FILESYSWRITE}
@@ -356,7 +356,7 @@ function dl_book() {
     # Here we create the directory to store the book
     # and code samples if it doesn't exist already.
     # This directory takes the name of the book title
-    BOOK_DIR="$DOWNLOAD_DIR}/${3}"
+    BOOK_DIR="${DOWNLOAD_DIR}/${3}"
     [ ! -d "${BOOK_DIR}" ] && mkdir -p "${BOOK_DIR}" || {
         echo "ERROR: Failed to create book directory: ${BOOK_DIR}" >&2
         exit ${ERR_FILESYSWRITE}
