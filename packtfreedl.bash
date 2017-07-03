@@ -60,6 +60,11 @@ DEBUG=0
 #   The directory to download the ebooks to
 DOWNLOAD_DIR="${HOME}/Downloads/"
 
+# DIR_PER_BOOK
+#   Specifies if each book should have it's own directory under DOWNLOAD_DIR. If
+#   this is true (1), the directory will be named after the book title.
+DIR_PER_BOOK=0
+
 # CLAIM_EBOOKS
 #   If packtfreedl should log in and try to claim the ebooks. NOTE: If this is
 #   false (0), ebooks will not be downloaded (USER_ID, PASSWORD and
@@ -176,7 +181,7 @@ ${APP_NAME} downloads the latest free book from Packt Publishing.
 Usage: ${PROG} -h|--help
        ${PROG} -V|--version
        ${PROG} -C|--configuration
-       ${PROG} [-v|--verbose]
+       ${PROG} [-v|--verbose] [-d|--bookdir]
 
 -h|--help           - Displays this help
 -V|--version        - Displays the program version
@@ -187,6 +192,8 @@ Usage: ${PROG} -h|--help
                       for editing.
 -v|--verbose        - Displays extra debugging information.  This is the same
                       as setting DEBUG=1 in your config.
+-d|--bookdir        - Creates a separate directory per book. This is the same as
+                      setting DIR_PER_BOOK=1 in your config.
 Example: ${PROG}
 EOF
 }
@@ -320,17 +327,19 @@ function download_file() {
 
 # <id> <name>
 function dl_code() {
+    book_dir="${DOWNLOAD_DIR}"
+
     # Here we create the directory to store the book
     # and code samples if it doesn't exist already.
     # This directory takes the name of the book title
-    BOOK_DIR="${DOWNLOAD_DIR}/${2}"
-    [ ! -d "${BOOK_DIR}" ] && mkdir -p "${BOOK_DIR}" || {
-        echo "ERROR: Failed to create book directory: ${BOOK_DIR}" >&2
+    [ ! "${DIR_PER_BOOK}" -eq 0 ] && book_dir="${book_dir}/${2}"
+    [ ! -d "${book_dir}" ] && mkdir -p "${book_dir}" || {
+        echo "ERROR: Failed to create book directory: ${book_dir}" >&2
         exit ${ERR_FILESYSWRITE}
     }
 
     # FIXME: Currently always assuming ZIP
-    out="${BOOK_DIR}/${2}.${1}.CODE.zip"
+    out="${book_dir}/${2}.${1}.CODE.zip"
     
     # Get the mybooks page...
     # then filter out JUST the book we're interested in...
@@ -353,17 +362,19 @@ function dl_book() {
         return $?
     }
 
+    book_dir="${DOWNLOAD_DIR}"
+
     # Here we create the directory to store the book
     # and code samples if it doesn't exist already.
     # This directory takes the name of the book title
-    BOOK_DIR="${DOWNLOAD_DIR}/${3}"
-    [ ! -d "${BOOK_DIR}" ] && mkdir -p "${BOOK_DIR}" || {
-        echo "ERROR: Failed to create book directory: ${BOOK_DIR}" >&2
+    [ ! "${DIR_PER_BOOK}" -eq 0 ] && book_dir="${book_dir}/${3}"
+    [ ! -d "${book_dir}" ] && mkdir -p "${book_dir}" || {
+        echo "ERROR: Failed to create book directory: ${book_dir}" >&2
         exit ${ERR_FILESYSWRITE}
     }
 
     url="${baseurl}/${dlpath}/${1}/${2}"
-    out="${BOOK_DIR}/${3}.${1}.${2}"
+    out="${book_dir}/${3}.${1}.${2}"
 
     download_file "${url}" "${out}"
     return $?
@@ -487,6 +498,15 @@ while [ ${#} -gt 0 ]; do #{
 
                 output_config
                 exit ${ERR_NONE}
+            ;;
+
+            # Directory per book # -d|--bookdir
+            -d|--bookdir)
+                decho "Book Dir"
+
+                DIR_PER_BOOK=1
+
+                shift 1; continue
             ;;
 
             *)
