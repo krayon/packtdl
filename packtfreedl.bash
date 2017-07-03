@@ -320,9 +320,14 @@ function download_file() {
 
 # <id> <name>
 function dl_code() {
+    # download code files into directory named after the book title
+    # we are creating this directory in the dl_book function
+    # since it fires first!
+    CODE_DIR="${DOWNLOAD_DIR}/${2}"
     # FIXME: Currently always assuming ZIP
-    out="${DOWNLOAD_DIR}/${2}.${1}.CODE.zip"
-
+    #out="${DOWNLOAD_DIR}/${2}.${1}.CODE.zip"
+    out="${CODE_DIR}/${2}.${1}.CODE.zip"
+    
     # Get the mybooks page...
     # then filter out JUST the book we're interested in...
     # then get the code download link
@@ -343,9 +348,15 @@ function dl_book() {
         dl_code "${1}" "${3}"
         return $?
     }
+    # Here we create the directory to store the book
+    # and code samples.
+    # This directory takes the name of the book title
+    mkdir -p "${DOWNLOAD_DIR}/${3}"
+    BOOK_DIR="$DOWNLOAD_DIR}/${3}"
 
     url="${baseurl}/${dlpath}/${1}/${2}"
-    out="${DOWNLOAD_DIR}/${3}.${1}.${2}"
+    #out="${DOWNLOAD_DIR}/${3}.${1}.${2}"
+    out="${BOOK_DIR}/${3}.${1}.${2}"
 
     download_file "${url}" "${out}"
     return $?
