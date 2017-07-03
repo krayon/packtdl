@@ -353,7 +353,7 @@ function dl_book() {
 
 function login() {
     # Log in
-    echo "Logging in..." >&2
+    echo "Logging in..."
     pagedata="$(\
         curl\
             --header         'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'\
@@ -392,7 +392,7 @@ function login() {
 # <claim_path>
 function claim_book() {
     # Claim ebook and get d/l link
-    echo "Claiming book..." >&2
+    echo "Claiming book..."
     pagedata="$(\
         curl\
             --header         'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'\
@@ -537,7 +537,7 @@ done #}
 }
 
 # Get free book page
-echo "Looking up free book..." >&2
+echo "Looking up free book..."
 pagedata="$(\
     curl\
         --header         'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'\
@@ -571,7 +571,7 @@ booktitle="$(\
 
 sleep "${TIME_SLEEP}"
 
-echo "Free book: ${booktitle}..." >&2
+echo "Free book: ${booktitle}..."
 
 [ "${CLAIM_EBOOKS}" -eq 1 ] && {
     # Get free book claim link
@@ -593,7 +593,7 @@ echo "Free book: ${booktitle}..." >&2
     decho "bookid: ${bookid}"
 
     for fmt in "${DOWNLOAD_FORMATS[@]}"; do #{
-        echo "Download format: ${fmt}..." >&2
+        echo "Download format: ${fmt}..."
         dl_book ${bookid} "${fmt}" "${booktitle}" || {
             echo "WARNING: Downloading of format ${fmt} (partially?) failed" >&2
             echo "NOTE: This could just mean the file is completely"\
