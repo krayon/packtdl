@@ -1,6 +1,16 @@
 Downloader for Packt free e-book of the day
 
-REWRITE OF: https://github.com/igustin/packt
+== UPDATE: 2017-07-03: DEPRECATED ==
+
+Due to Packt Publishing adding a Google reverse-turing test object to the claim
+page, this tool will (at least for now) pivot to a more generic Packt Publishing
+library management tool. The original free e-book downloader version will be
+kept in a seperate branch and may be "fixed" at some point to prompt for the
+reverse turing test answer.
+
+... Probably not though, as this makes it pretty much useless for automation :(
+
+== SUMMARY ==
 
 {{{
 Packt Free DL v0.03
