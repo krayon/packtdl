@@ -82,7 +82,6 @@ DOWNLOAD_FORMATS=(
     'epub'
     'pdf'
     'mobi'
-    'code'
 )
 
 # USER_ID

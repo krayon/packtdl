@@ -48,6 +48,8 @@ Usage: packtdl.bash -h|--help
                           /etc/packtdl.conf
                       or
                           /home/krayon/.packtdlrc
+                      or
+                          /home/krayon/.packtdl/packtdlrc
                       for editing.
 -v|--verbose        - Displays extra debugging information.  This is the same
                       as setting DEBUG=1 in your config.
@@ -78,8 +80,8 @@ Now, you can edit ~/.packtdlrc in your favourite editor.
 
 The configuration file will look something like this:
 {{{
-# Packt Free DL Default Configuration
-# ===================================
+# Packt DL Default Configuration
+# ==============================
 
 # DEBUG
 #   This defines debug mode which will output verbose info to stderr
@@ -115,7 +117,7 @@ CLAIM_EBOOKS=1
 DOWNLOAD_FORMATS=(
     'epub'
     'pdf'
-    'code'
+    'mobi'
 )
 
 # USER_ID
