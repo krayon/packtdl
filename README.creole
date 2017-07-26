@@ -1,5 +1,7 @@
 = Packt Publishing library manager/downloader (packtdl) =
 
+**VERSION:** 0.04
+
 == UPDATE: 2017-07-26: UN-DEPRECATED ==
 
 Due to Packt Publishing REMOVING the Google reverse-turing test object from the
@@ -15,8 +17,8 @@ The project has been renamed. You will need to:
 
 # Update your local repositories to point to the new location.
 # Rename your configuration file(s):
-** /etc/packtfreedl.conf **-TO-** /etc/packtdl.conf
-** ~/.packtfreedlrc      **-TO-** ~/.packtdlrc
+** /etc/packtfreedl.conf **TO** /etc/packtdl.conf
+** ~/.packtfreedlrc      **TO** ~/.packtdlrc
 
 == UPDATE: 2017-07-03: DEPRECATED ==
 
@@ -67,7 +69,10 @@ Example: packtdl.bash
 * ANTI-FEATURE: Inability to tell if a download failed to continue or
   is just completed already due to curl bug 1163
   ( https://github.com/curl/curl/issues/1163 ).
-* **[NEW]** Downloads book files to seperate directory (thanks CPrompt),
+* Downloads book files to seperate directory (thanks CPrompt),
+* **[NEW]** Changed name to packtdl.
+* **[NEW]** Now works with packtpub website changes (as of 2017-07-26 05:41
+  UTC).
 
 == CONFIGURATION ==
 
