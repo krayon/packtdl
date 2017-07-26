@@ -1,4 +1,13 @@
-Downloader for Packt free e-book of the day
+= Packt Publishing library manager/downloader (packtdl) =
+
+== UPDATE: 2017-07-26: RENAMED PROJECT ==
+
+The project has been renamed. You will need to:
+
+# Update your local repositories to point to the new location.
+# Rename your configuration file(s):
+** /etc/packtfreedl.conf **-TO-** /etc/packtdl.conf
+** ~/.packtfreedlrc      **-TO-** ~/.packtdlrc
 
 == UPDATE: 2017-07-03: DEPRECATED ==
 
@@ -13,27 +22,29 @@ for the reverse turing test answer.
 == SUMMARY ==
 
 {{{
-Packt Free DL v0.03
-http://gitlab.com/krayon/packtfreedl/
+Packt DL v0.04
+http://gitlab.com/krayon/packtdl/
 
 
-Packt Free DL downloads the latest free book from Packt Publishing.
+Packt DL downloads the latest free book from Packt Publishing.
 
-Usage: packtfreedl.bash -h|--help
-       packtfreedl.bash -V|--version
-       packtfreedl.bash -C|--configuration
-       packtfreedl.bash [-v|--verbose]
+Usage: packtdl.bash -h|--help
+       packtdl.bash -V|--version
+       packtdl.bash -C|--configuration
+       packtdl.bash [-v|--verbose] [-d|--bookdir]
 
 -h|--help           - Displays this help
 -V|--version        - Displays the program version
 -C|--configuration  - Outputs the default configuration that can be placed in
-                          /etc/packtfreedl.conf
+                          /etc/packtdl.conf
                       or
-                          /home/krayon/.packtfreedlrc
+                          /home/krayon/.packtdlrc
                       for editing.
 -v|--verbose        - Displays extra debugging information.  This is the same
                       as setting DEBUG=1 in your config.
-Example: packtfreedl.bash
+-d|--bookdir        - Creates a separate directory per book. This is the same as
+                      setting DIR_PER_BOOK=1 in your config.
+Example: packtdl.bash
 }}}
 
 == FEATURES ==
@@ -51,10 +62,10 @@ Example: packtfreedl.bash
 
 To generate the default configuration for modification, run:
 {{{
-./packtfreedl.bash -C >~/.packtfreedlrc
+./packtdl.bash -C >~/.packtdlrc
 }}}
 
-Now, you can edit ~/.packtfreedlrc in your favourite editor.
+Now, you can edit ~/.packtdlrc in your favourite editor.
 
 The configuration file will look something like this:
 {{{
@@ -69,14 +80,14 @@ DEBUG=0
 # ERROR_LOG
 #   The file to output errors and debug statements (when DEBUG !=
 #   0) instead of stderr.
-#ERROR_LOG="/tmp/packtfreedl.log"
+#ERROR_LOG="/tmp/packtdl.log"
 
 # DOWNLOAD_DIR
 #   The directory to download the ebooks to
 DOWNLOAD_DIR="${HOME}/Downloads/"
 
 # CLAIM_EBOOKS
-#   If packtfreedl should log in and try to claim the ebooks. NOTE: If this is
+#   If packtdl should log in and try to claim the ebooks. NOTE: If this is
 #   false (0), ebooks will not be downloaded (USER_ID, PASSWORD and
 #   DOWNLOAD_FORMATS is ignored).
 CLAIM_EBOOKS=1
@@ -114,7 +125,7 @@ TIMEOUT=30
 # DLTIMEOUT
 #   The amount of time (in seconds) to wait for downloading of files. Keep in
 #   mind that if you're downloading code, this may need to be set considerably
-#   large. If a timeout does occur, packtfreedl will try to resume the download
+#   large. If a timeout does occur, packtdl will try to resume the download
 #   when run again.
 DLTIMEOUT=600
 
@@ -131,7 +142,7 @@ USER_AGENT="Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:51.0) Gecko/20100101 Fire
 
 Example of the script in use:
 {{{
-$ ./packtfreedl.bash
+$ ./packtdl.bash
 Logging in...
 Looking up free book...
 Free book: Learning C# by Developing Games with Unity 5.x - Second Edition...
@@ -143,7 +154,7 @@ Download format: code...
 
 == BUGS ==
 
-* Due to a curl bug ( https://github.com/curl/curl/issues/1163 ), packtfreedl is
+* Due to a curl bug ( https://github.com/curl/curl/issues/1163 ), packtdl is
   currently unable to tell the difference between an error downloading, or a
   completed file, trying to download again.
 

@@ -3,7 +3,7 @@
 # ( settings from: http://datapax.com.au/code_conventions/ )
 #
 #/**********************************************************************
-#    Packt Free DL
+#    Packt DL
 #    Copyright (C) 2017 Todd Harbour
 #
 #    This program is free software; you can redistribute it and/or
@@ -22,13 +22,13 @@
 #      51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 # **********************************************************************/
 
-# packtfreedl
-#------------
-# Downloader for Packt free e-book of the day.
+# packtdl
+#--------
+# Packt Publishing library manager/downloader
 
 # Config paths
-_ETC_CONF="/etc/packtfreedl.conf"
-_HOME_CONF="${HOME}/.packtfreedlrc"
+_ETC_CONF="/etc/packtdl.conf"
+_HOME_CONF="${HOME}/.packtdlrc"
 
 
 
@@ -37,14 +37,14 @@ _HOME_CONF="${HOME}/.packtfreedlrc"
 # Do NOT edit the CONFIGURATION below. Instead generate the default
 # configuration file in your home directory thusly:
 #
-#     ./packtfreedl.bash -C >~/.packtfreedlrc
+#     ./packtdl.bash -C >~/.packtdlrc
 #
 ####################################
 
 # [ CONFIG_START
 
-# Packt Free DL Default Configuration
-# ===================================
+# Packt DL Default Configuration
+# ==============================
 
 # DEBUG
 #   This defines debug mode which will output verbose info to stderr
@@ -54,7 +54,7 @@ DEBUG=0
 # ERROR_LOG
 #   The file to output errors and debug statements (when DEBUG !=
 #   0) instead of stderr.
-#ERROR_LOG="/tmp/packtfreedl.log"
+#ERROR_LOG="/tmp/packtdl.log"
 
 # DOWNLOAD_DIR
 #   The directory to download the ebooks to
@@ -66,7 +66,7 @@ DOWNLOAD_DIR="${HOME}/Downloads/"
 DIR_PER_BOOK=0
 
 # CLAIM_EBOOKS
-#   If packtfreedl should log in and try to claim the ebooks. NOTE: If this is
+#   If packtdl should log in and try to claim the ebooks. NOTE: If this is
 #   false (0), ebooks will not be downloaded (USER_ID, PASSWORD and
 #   DOWNLOAD_FORMATS is ignored).
 CLAIM_EBOOKS=1
@@ -105,7 +105,7 @@ TIMEOUT=30
 # DLTIMEOUT
 #   The amount of time (in seconds) to wait for downloading of files. Keep in
 #   mind that if you're downloading code, this may need to be set considerably
-#   large. If a timeout does occur, packtfreedl will try to resume the download
+#   large. If a timeout does occur, packtdl will try to resume the download
 #   when run again.
 DLTIMEOUT=600
 
@@ -126,9 +126,9 @@ USER_AGENT="Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:51.0) Gecko/20100101 Fire
 [ ! -z "${_HOME_CONF}" ] && [ -r "${_HOME_CONF}" ] && . "${_HOME_CONF}"
 
 # Version
-APP_NAME="Packt Free DL"
-APP_VER="0.03"
-APP_URL="http://gitlab.com/krayon/packtfreedl/"
+APP_NAME="Packt DL"
+APP_VER="0.04"
+APP_URL="http://gitlab.com/krayon/packtdl/"
 
 # Program name
 PROG="$(basename "${0}")"
