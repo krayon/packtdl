@@ -333,9 +333,11 @@ function dl_code() {
     # and code samples if it doesn't exist already.
     # This directory takes the name of the book title
     [ ! "${DIR_PER_BOOK}" -eq 0 ] && book_dir="${book_dir}/${2}"
-    [ ! -d "${book_dir}" ] && mkdir -p "${book_dir}" || {
-        echo "ERROR: Failed to create book directory: ${book_dir}" >&2
-        exit ${ERR_FILESYSWRITE}
+    [ ! -d "${book_dir}" ] && {
+        mkdir -p "${book_dir}" || {
+            echo "ERROR: Failed to create book directory: ${book_dir}" >&2
+            exit ${ERR_FILESYSWRITE}
+        }
     }
 
     # FIXME: Currently always assuming ZIP
@@ -368,9 +370,11 @@ function dl_book() {
     # and code samples if it doesn't exist already.
     # This directory takes the name of the book title
     [ ! "${DIR_PER_BOOK}" -eq 0 ] && book_dir="${book_dir}/${3}"
-    [ ! -d "${book_dir}" ] && mkdir -p "${book_dir}" || {
-        echo "ERROR: Failed to create book directory: ${book_dir}" >&2
-        exit ${ERR_FILESYSWRITE}
+    [ ! -d "${book_dir}" ] && {
+        mkdir -p "${book_dir}" || {
+            echo "ERROR: Failed to create book directory: ${book_dir}" >&2
+            exit ${ERR_FILESYSWRITE}
+        }
     }
 
     url="${baseurl}/${dlpath}/${1}/${2}"
