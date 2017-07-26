@@ -29,6 +29,7 @@
 # Config paths
 _ETC_CONF="/etc/packtdl.conf"
 _HOME_CONF="${HOME}/.packtdlrc"
+_HDIR_CONF="${HOME}/.packtdl/packtdlrc"
 
 
 
@@ -124,6 +125,7 @@ USER_AGENT="Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:51.0) Gecko/20100101 Fire
 ###
 [ ! -z "${_ETC_CONF}"  ] && [ -r "${_ETC_CONF}"  ] && . "${_ETC_CONF}"
 [ ! -z "${_HOME_CONF}" ] && [ -r "${_HOME_CONF}" ] && . "${_HOME_CONF}"
+[ ! -z "${_HDIR_CONF}" ] && [ -r "${_HDIR_CONF}" ] && . "${_HDIR_CONF}"
 
 # Version
 APP_NAME="Packt DL"
@@ -189,6 +191,8 @@ Usage: ${PROG} -h|--help
                           ${_ETC_CONF}
                       or
                           ${_HOME_CONF}
+                      or
+                          ${_HDIR_CONF}
                       for editing.
 -v|--verbose        - Displays extra debugging information.  This is the same
                       as setting DEBUG=1 in your config.
