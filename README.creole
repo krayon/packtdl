@@ -1,5 +1,14 @@
 = Packt Publishing library manager/downloader (packtdl) =
 
+== UPDATE: 2017-07-26: UN-DEPRECATED ==
+
+Due to Packt Publishing REMOVING the Google reverse-turing test object from the
+claim page, this tool will maintain existing claim and download functionality,
+as well as the original plan of becoming a more generic library management tool.
+
+The "freedl" branch will stick around in case they re-protect the claim page but
+will for now be only a mirror of master.
+
 == UPDATE: 2017-07-26: RENAMED PROJECT ==
 
 The project has been renamed. You will need to:
@@ -86,6 +95,11 @@ DEBUG=0
 #   The directory to download the ebooks to
 DOWNLOAD_DIR="${HOME}/Downloads/"
 
+# DIR_PER_BOOK
+#   Specifies if each book should have it's own directory under DOWNLOAD_DIR. If
+#   this is true (1), the directory will be named after the book title.
+DIR_PER_BOOK=0
+
 # CLAIM_EBOOKS
 #   If packtdl should log in and try to claim the ebooks. NOTE: If this is
 #   false (0), ebooks will not be downloaded (USER_ID, PASSWORD and
@@ -101,7 +115,7 @@ CLAIM_EBOOKS=1
 DOWNLOAD_FORMATS=(
     'epub'
     'pdf'
-    'mobi'
+    'code'
 )
 
 # USER_ID

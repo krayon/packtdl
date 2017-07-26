@@ -444,6 +444,7 @@ function claim_book() {
             --cookie-jar     "${cookie_file}"\
             --header         'Connection: keep-alive'\
             --header         "Referer: ${baseurl}/${offerpath}"\
+            --data           ''\
             "${baseurl}/${1}"\
         |tr -d '\r'\
     )" || {
@@ -625,8 +626,7 @@ echo "Free book: ${booktitle}..."
     # Get free book claim link
     claimpath="$(\
         echo "${pagedata}"\
-        |grep -m1 'href=".*claim'\
-        |sed 's#.*href="\([^"]*\)".*$#\1#'\
+        |sed -n '/<form.*claim/{s#.*action="\([^"]*\)".*$#\1#p;q}'\
     )"
     [ "${claimpath}" == "" ] && {
         echo "ERROR: Failed to get free book claim path, try again later" >&2
