@@ -2,6 +2,8 @@
 
 **VERSION:** 0.04
 
+== UPDATE: 2017-07-28: DOWNLOADING IS FAILING ==
+
 == UPDATE: 2017-07-26: UN-DEPRECATED ==
 
 Due to Packt Publishing REMOVING the Google reverse-turing test object from the
@@ -178,5 +180,6 @@ Download format: code...
 * Due to a curl bug ( https://github.com/curl/curl/issues/1163 ), packtdl is
   currently unable to tell the difference between an error downloading, or a
   completed file, trying to download again.
+* [2017-07-28] CPrompt reports downloading of books is failing.
 
 <<< vim:set ts=4 sw=4 tw=80 et ai si syn=creole: >>>
