@@ -170,7 +170,6 @@ done <<<"${_XDG_CONF_DIRS}" #}
 # can therefore source each in turn, allowing the more important to override the
 # earlier ones.
 while read -r -d: conf; do #{
-    decho "SOURCING: ${conf}"
     . "${conf}"
 done <<<"${_CONFS}" #}
 
