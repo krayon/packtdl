@@ -18,11 +18,16 @@ Usage: packtdl.bash -h|--help
 
 -h|--help           - Displays this help
 -V|--version        - Displays the program version
--C|--configuration  - Outputs the default configuration that can be placed in
+-C|--configuration  - Outputs the default configuration that can be placed in a
+                      config file in XDG_CONFIG or one of the XDG_CONFIG_DIRS:
+                          /home/krayon/.config/packtdl/packtdl.conf
+                          /home/krayon/.config/packtdl.conf
+                          /etc/xdg
+                              /packtdl/packtdl.conf
+                              /packtdl.conf
+                      or one of the deprecated config paths:
                           /etc/packtdl.conf
-                      or
                           /home/krayon/.packtdlrc
-                      or
                           /home/krayon/.packtdl/packtdlrc
                       for editing.
 -v|--verbose        - Displays extra debugging information.  This is the same
