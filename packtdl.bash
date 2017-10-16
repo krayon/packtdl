@@ -27,9 +27,12 @@
 # Packt Publishing library manager/downloader
 
 # Config paths
-_ETC_CONF="/etc/packtdl.conf"
-_HOME_CONF="${HOME}/.packtdlrc"
-_HDIR_CONF="${HOME}/.packtdl/packtdlrc"
+_CONF_APPNAME="packtdl"
+_CONF_FILENAME="${_CONF_APPNAME}.conf"
+_CONF_RCNAME="${_CONF_APPNAME}rc"
+_ETC_CONF="/etc/${_CONF_FILENAME}"
+_HOME_CONF="${HOME}/.${_CONF_RCNAME}"
+_HDIR_CONF="${HOME}/.${_CONF_APPNAME}/${_CONF_RCNAME}"
 
 
 
@@ -122,9 +125,56 @@ USER_AGENT="Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:51.0) Gecko/20100101 Fire
 ###
 # Config loading
 ###
-[ ! -z "${_ETC_CONF}"  ] && [ -r "${_ETC_CONF}"  ] && . "${_ETC_CONF}"
-[ ! -z "${_HOME_CONF}" ] && [ -r "${_HOME_CONF}" ] && . "${_HOME_CONF}"
-[ ! -z "${_HDIR_CONF}" ] && [ -r "${_HDIR_CONF}" ] && . "${_HDIR_CONF}"
+
+# A list of configs - user provided prioritised over system
+# (built backwards to save fiddling with CONFIG_DIRS order)
+_CONFS=""
+
+# XDG Base (v0.8) - User level
+# ( https://specifications.freedesktop.org/basedir-spec/0.8/ )
+_XDG_CONF_DIR="${XDG_CONFIG_HOME:-${HOME}/.config}"
+# As per spec, non-absolute paths are invalid and must be ignored
+[ "${_XDG_CONF_DIR:0:1}" == "/" ] && {
+        for conf in\
+            "${_XDG_CONF_DIR}/${_CONF_APPNAME}/${_CONF_FILENAME}"\
+            "${_XDG_CONF_DIR}/${_CONF_FILENAME}"\
+        ; do #{
+            [ -r "${conf}" ] && _CONFS="${conf}:${_CONFS}"
+        done #}
+}
+
+# User level settings
+[ ! -z "${_HDIR_CONF}" ] && [ -r "${_HDIR_CONF}" ] && _CONFS="${_HDIR_CONF}:${_CONFS}"
+[ ! -z "${_HOME_CONF}" ] && [ -r "${_HOME_CONF}" ] && _CONFS="${_HOME_CONF}:${_CONFS}"
+
+# XDG Base (v0.8) - System level
+# ( https://specifications.freedesktop.org/basedir-spec/0.8/ )
+_XDG_CONF_DIRS="${XDG_CONFIG_DIRS:-/etc/xdg}"
+[ "${_XDG_CONF_DIRS: -1:1}" != ":" ] && _XDG_CONF_DIRS="${_XDG_CONF_DIRS}:"
+while read -r -d: _XDG_CONF_DIR; do #{
+    # As per spec, non-absolute paths are invalid and must be ignored
+    [ "${_XDG_CONF_DIR:0:1}" == "/" ] && {
+        for conf in\
+            "${_XDG_CONF_DIR}/${_CONF_APPNAME}/${_CONF_FILENAME}"\
+            "${_XDG_CONF_DIR}/${_CONF_FILENAME}"\
+        ; do #{
+            [ -r "${conf}" ] && _CONFS="${conf}:${_CONFS}"
+        done #}
+    }
+done <<<"${_XDG_CONF_DIRS}" #}
+
+# System level settings
+[ ! -z "${_ETC_CONF}"  ] && [ -r "${_ETC_CONF}"  ] && _CONFS="${_ETC_CONF}:${_CONFS}"
+
+# _CONFS now contains a list of config files, in reverse importance order. We
+# can therefore source each in turn, allowing the more important to override the
+# earlier ones.
+while read -r -d: conf; do #{
+    decho "SOURCING: ${conf}"
+    . "${conf}"
+done <<<"${_CONFS}" #}
+
+
 
 # Version
 APP_NAME="Packt DL"
@@ -186,11 +236,16 @@ Usage: ${PROG} -h|--help
 
 -h|--help           - Displays this help
 -V|--version        - Displays the program version
--C|--configuration  - Outputs the default configuration that can be placed in
+-C|--configuration  - Outputs the default configuration that can be placed in a
+                      config file in XDG_CONFIG or one of the XDG_CONFIG_DIRS:
+                          ${XDG_CONFIG_HOME:-${HOME}/.config}/${_CONF_APPNAME}/${_CONF_FILENAME}
+                          ${XDG_CONFIG_HOME:-${HOME}/.config}/${_CONF_FILENAME}
+                          ${XDG_CONFIG_DIRS:-/etc/xdg}
+                              /${_CONF_APPNAME}/${_CONF_FILENAME}
+                              /${_CONF_FILENAME}
+                      or one of the deprecated config paths:
                           ${_ETC_CONF}
-                      or
                           ${_HOME_CONF}
-                      or
                           ${_HDIR_CONF}
                       for editing.
 -v|--verbose        - Displays extra debugging information.  This is the same
