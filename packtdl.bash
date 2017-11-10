@@ -1,5 +1,5 @@
 #!/bin/bash
-# vim:set ts=4 sw=4 tw=80 et cindent ai si cino=(0,ml,\:0:
+# vim:set ts=4 sw=4 tw=80 et ai si:
 # ( settings from: http://datapax.com.au/code_conventions/ )
 #
 #/**********************************************************************
@@ -39,9 +39,14 @@ _HDIR_CONF="${HOME}/.${_CONF_APPNAME}/${_CONF_RCNAME}"
 ############### STOP ###############
 #
 # Do NOT edit the CONFIGURATION below. Instead generate the default
-# configuration file in your home directory thusly:
+# configuration file in your XDG_CONFIG directory thusly:
 #
-#     ./packtdl.bash -C >~/.packtdlrc
+#     ./packtdl.bash -C >$XDG_CONFIG_HOME/packtdl.conf
+#
+# or perhaps:
+#     ./packtdl.bash -C >~/.config/packtdl.conf
+#
+# Consult --help for more complete information.
 #
 ####################################
 
@@ -51,13 +56,13 @@ _HDIR_CONF="${HOME}/.${_CONF_APPNAME}/${_CONF_RCNAME}"
 # ==============================
 
 # DEBUG
-#   This defines debug mode which will output verbose info to stderr
-#   or, if configured, the debug file ( ERROR_LOG ).
+#   This defines debug mode which will output verbose info to stderr or, if
+#   configured, the debug file ( ERROR_LOG ).
 DEBUG=0
 
 # ERROR_LOG
-#   The file to output errors and debug statements (when DEBUG !=
-#   0) instead of stderr.
+#   The file to output errors and debug statements (when DEBUG != 0) instead of
+#   stderr.
 #ERROR_LOG="/tmp/packtdl.log"
 
 # DOWNLOAD_DIR
@@ -236,7 +241,8 @@ Usage: ${PROG} -h|--help
 -h|--help           - Displays this help
 -V|--version        - Displays the program version
 -C|--configuration  - Outputs the default configuration that can be placed in a
-                      config file in XDG_CONFIG or one of the XDG_CONFIG_DIRS:
+                      config file in XDG_CONFIG or one of the XDG_CONFIG_DIRS
+                      (in order of decreasing precedence):
                           ${XDG_CONFIG_HOME:-${HOME}/.config}/${_CONF_APPNAME}/${_CONF_FILENAME}
                           ${XDG_CONFIG_HOME:-${HOME}/.config}/${_CONF_FILENAME}
                           ${XDG_CONFIG_DIRS:-/etc/xdg}
@@ -273,12 +279,7 @@ function trapint() {
 
 # Output configuration file
 function output_config() {
-    cat "${0}"|\
-         grep -A99999 '# \[ CONFIG_START'\
-        |grep -v      '# \[ CONFIG_START'\
-        |grep -B99999 '# \] CONFIG_END'  \
-        |grep -v      '# \] CONFIG_END'  \
-    #
+    sed -n '/^# \[ CONFIG_START/,/^# \] CONFIG_END/p' <"${0}"
 }
 
 # Debug echo
